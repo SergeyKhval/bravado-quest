@@ -1,5 +1,5 @@
 <template>
-  <li class="user-card">
+  <li :class="rootClass">
     <div class="user-card__avatar">
       <img :src="user.avatar" :key="user.email"/>
     </div>
@@ -11,7 +11,7 @@
         <div class="user__address" v-html="wrapSearch(userAddress)"/>
       </div>
       <div class="user-info__action">
-        <button class="user-action">{{buttonText}}</button>
+        <button class="user-action" @click="$emit('select', index)">{{buttonText}}</button>
       </div>
     </div>
   </li>
@@ -25,12 +25,22 @@
         type: Object,
         required: true
       },
+      index: {
+        type: Number,
+        required: true
+      },
       search: {
         type: String,
         default: ''
       }
     },
     computed: {
+      rootClass() {
+        return {
+          'user-card': true,
+          'user-card--selected': this.user.isSelected
+        }
+      },
       regex() {
         return new RegExp(`(${this.search})`, 'gi')
       },
@@ -38,7 +48,7 @@
         return `${this.user.address}, ${this.user.city}`
       },
       buttonText() {
-        return Math.random() > 0.5 ? 'Skip selection' : 'Mark as suitable'
+        return this.user.isSelected ? 'Skip selection' : 'Mark as suitable'
       }
     },
     methods: {
@@ -63,7 +73,7 @@
     flex-direction: row;
     overflow: hidden;
 
-    &:hover {
+    &--selected {
       border: 1px solid #4765FF;
     }
 
@@ -146,7 +156,7 @@
     background: none;
     border: none;
     text-transform: uppercase;
-    width: 146px;
+    min-width: 146px;
     height: 19px;
     cursor: pointer;
 

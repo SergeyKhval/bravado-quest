@@ -4,8 +4,14 @@
       <div class="search-wrapper">
         <input class="search" type="text" :value="search" @input="onInput" autofocus>
       </div>
-      <recycle-scroller class="scroller" :items="filteredUsers" :item-size="156" key-field="email" v-slot="{item}">
-        <user-card :user="item" :search="search"/>
+      <recycle-scroller
+          class="scroller"
+          :items="filteredUsers"
+          :item-size="156"
+          key-field="email"
+          v-slot="{item, index}"
+      >
+        <user-card :user="item" :index="index" :search="search" @select="selectUser"/>
       </recycle-scroller>
     </ul>
   </div>
@@ -13,9 +19,11 @@
 
 <script>
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+  import Vue from 'vue'
   import {RecycleScroller} from 'vue-virtual-scroller'
   import debounce from 'lodash/debounce'
   import get from 'lodash/get'
+  import has from 'lodash/has'
   import UserCard from './UserCard'
 
   function predicate(user) {
@@ -57,6 +65,16 @@
       }
     },
     methods: {
+      selectUser(index) {
+        const user = this.filteredUsers[index]
+
+        if (user) {
+          if (has(user, 'isSelected'))
+            user.isSelected = !user.isSelected
+          else
+            Vue.set(user, 'isSelected', true)
+        }
+      },
       onInput: debounce(function (event) {
         this.search = event.target.value
       }, 250)
